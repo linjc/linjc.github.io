@@ -22,8 +22,8 @@
         },
         {
             "description": "Requests the names of the people currently on the International Space Station.\nNote: This function requests data from a hypothetical URL. In practice, replace the URL with a data source for your scenario.",
-            "id": "API",
-            "name": "API",
+            "id": "API123",
+            "name": "API123",
             "parameters": [],
             "result": {}
         },
