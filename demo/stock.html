@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>uSmart</title>
+	<style>
+		body,
+		ul {
+			margin: 0;
+			padding: 0;
+		}
+
+		.list {
+			padding: 20px;
+			display: flex;
+			flex-wrap: wrap;
+			gap: 30px;
+		}
+
+		.list>li {
+			list-style: none;
+		}
+
+		form {
+			display: flex;
+			flex-direction: column;
+			row-gap: 10px;
+		}
+	</style>
+</head>
+
+<body>
+	<ul class="list">
+		<li>
+			<h3>盈立HK港股收费</h3>
+			<form id="form1" onsubmit="return false">
+				<div>股价：<input name="price1" type="number" placeholder="输入股价" step="0.00001" /></div>
+				<div>股数：<input name="count1" type="number" placeholder="输入股数" /></div>
+				<div><button onclick="handleSubmit1()">计算</button></div>
+				<div id="result1"></div>
+			</form>
+		</li>
+		<li>
+			<h3>盈立HK美股收费</h3>
+			<form id="form2" onsubmit="return false">
+				<div>类型：
+					<input type="radio" name="type2" id="buy2" value="buy" checked>
+					<label for="buy2">买</label>
+					<input type="radio" name="type2" id="sell2" value="sell">
+					<label for="sell2">卖</label>
+				</div>
+				<div>股价：<input name="price2" type="number" placeholder="输入股价" /></div>
+				<div>股数：<input name="count2" type="number" placeholder="输入股数" /></div>
+				<div><button onclick="handleSubmit2()">计算</button></div>
+				<div id="result2"></div>
+			</form>
+		</li>
+	</ul>
+
+	<script>
+		// 港股机构固定费用
+		function getHKFixedData(price, count) {
+			const total = price * count
+			const s1 = Math.max(0.01, total * 0.0000565)
+			const s2 = Math.max(2, Math.min(total * 0.00002, 100))
+			const s3 = total * 0.000027
+			const s4 = total * 0.0000015
+			const s5 = Math.max(1, total * 0.001)
+			const sum = s1 + s2 + s3 + s4 + s5
+			const innerHTML = `
+				<div>交易所：${s1.toFixed(2)}港元</div>
+				<div>结算所：${s2.toFixed(2)}港元</div>
+				<div>证监会：${s3.toFixed(2)}港元</div>
+				<div>财汇局：${s4.toFixed(2)}港元</div>
+				<div>印花税：${s5.toFixed(2)}港元</div>
+			`
+			return { sum, innerHTML }
+		}
+
+		// 美股机构固定费用
+		function getUSAFixedData(type, price, count) {
+			const total = price * count
+			const s1 = Math.max(0.01, Math.min(0.003 * count, total * 0.03))
+			let innerHTML = `<div>交收费：$${s1.toFixed(2)}</div>`
+			let s2 = 0, s3 = 0;
+			// 只对卖单
+			if (type === 'sell') {
+				s2 = Math.max(0.01, 0.0000278 * total) // 证监会收费
+				s3 = Math.max(0.01, Math.min(0.000166 * count, 8.3)) // 交易活动费
+				innerHTML += `
+					<div>证监会：$${s2.toFixed(2)}</div>
+					<div>监管局：$${s3.toFixed(2)}</div>
+				`
+			}
+			const sum = s1 + s2 + s3
+			return { sum, innerHTML }
+		}
+
+		function handleSubmit1() {
+			const form = document.getElementById('form1')
+			const formData = new FormData(form);
+			const price = Number(formData.get('price1')) || 0
+			const count = Number(formData.get('count1')) || 0
+			const total = price * count
+			const s1 = total * 0.0003
+			const fixedData = getHKFixedData(price, count)
+			const sum = (s1 + 12 + fixedData.sum).toFixed(2)
+			document.getElementById('result1').innerHTML = `
+				<div>佣金：${s1.toFixed(2)}港元</div>
+				<div>平台费：12港元</div>
+				${fixedData.innerHTML}
+				<div style="margin-top: 6px">总：${sum}港元</div>
+			`
+		}
+
+		function handleSubmit2() {
+			const form = document.getElementById('form2')
+			const formData = new FormData(form);
+			const type = formData.get('type2') || 'buy'
+			const price = Number(formData.get('price2')) || 0
+			const count = Number(formData.get('count2')) || 0
+			const total = price * count
+			const s1 = Math.max(1.88, Math.min(0.009 * count, total * 0.01))
+			const s2 = Math.max(0.01, 0.003 * count)
+			const fixedData = getUSAFixedData(type, price, count)
+			const sum = (s1 + s2 + fixedData.sum).toFixed(2)
+			document.getElementById('result2').innerHTML = `
+				<div>平台费：$${s1.toFixed(2)}</div>
+				<div>交易费：$${s2.toFixed(2)}</div>
+				${fixedData.innerHTML}
+				<div style="margin-top: 6px">总：$${sum}</div>
+			`
+		}
+	</script>
+</body>
+
+</html>
