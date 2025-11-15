@@ -52,10 +52,26 @@
 					<input type="radio" name="type2" id="sell2" value="sell">
 					<label for="sell2">卖</label>
 				</div>
-				<div>股价：<input name="price2" type="number" placeholder="输入股价" /></div>
+				<div>股价：<input name="price2" type="number" placeholder="输入股价" step="0.00001" /></div>
 				<div>股数：<input name="count2" type="number" placeholder="输入股数" /></div>
 				<div><button onclick="handleSubmit2()">计算</button></div>
 				<div id="result2"></div>
+			</form>
+		</li>
+		<li>
+			<h3><a href=" https://www.interactivebrokers.com.hk/cn/pricing/commissions-stocks.php" target="_blank">盈透美股收费</a>
+			</h3>
+			<form id="form3" onsubmit="return false">
+				<div>类型：
+					<input type="radio" name="type3" id="buy3" value="buy" checked>
+					<label for="buy3">买</label>
+					<input type="radio" name="type3" id="sell3" value="sell">
+					<label for="sell3">卖</label>
+				</div>
+				<div>股价：<input name="price3" type="number" placeholder="输入股价" step="0.00001" /></div>
+				<div>股数：<input name="count3" type="number" placeholder="输入股数" /></div>
+				<div><button onclick="handleSubmit3()">计算</button></div>
+				<div id="result3"></div>
 			</form>
 		</li>
 	</ul>
@@ -71,6 +87,7 @@
 			const s5 = Math.max(1, total * 0.001)
 			const sum = s1 + s2 + s3 + s4 + s5
 			const innerHTML = `
+				<div>第三方费用</div>
 				<div>交易所：${s1.toFixed(2)}港元</div>
 				<div>结算所：${s2.toFixed(2)}港元</div>
 				<div>证监会：${s3.toFixed(2)}港元</div>
@@ -80,22 +97,21 @@
 			return { sum, innerHTML }
 		}
 
-		// 美股机构固定费用
+		// 盈立HK美股机构固定费用
 		function getUSAFixedData(type, price, count) {
 			const total = price * count
-			const s1 = Math.max(0.01, Math.min(0.003 * count, total * 0.03))
-			let innerHTML = `<div>交收费：$${s1.toFixed(2)}</div>`
+			let innerHTML = ''
 			let s2 = 0, s3 = 0;
 			// 只对卖单
 			if (type === 'sell') {
 				s2 = Math.max(0.01, 0.0000278 * total) // 证监会收费
 				s3 = Math.max(0.01, Math.min(0.000166 * count, 8.3)) // 交易活动费
 				innerHTML += `
-					<div>证监会：$${s2.toFixed(2)}</div>
-					<div>监管局：$${s3.toFixed(2)}</div>
+					<div>证监会（卖）：$${s2.toFixed(2)}</div>
+					<div>监管局（卖）：$${s3.toFixed(2)}</div>
 				`
 			}
-			const sum = s1 + s2 + s3
+			const sum = s2 + s3
 			return { sum, innerHTML }
 		}
 
@@ -124,12 +140,34 @@
 			const count = Number(formData.get('count2')) || 0
 			const total = price * count
 			const s1 = Math.max(1.88, Math.min(0.009 * count, total * 0.01))
-			const s2 = Math.max(0.01, 0.003 * count)
+			const s2 = Math.max(0.01, Math.min(0.003 * count, total * 0.03)) // 交收费
 			const fixedData = getUSAFixedData(type, price, count)
 			const sum = (s1 + s2 + fixedData.sum).toFixed(2)
 			document.getElementById('result2').innerHTML = `
 				<div>平台费：$${s1.toFixed(2)}</div>
-				<div>交易费：$${s2.toFixed(2)}</div>
+				<div>交收费：$${s2.toFixed(2)}</div>
+				${fixedData.innerHTML}
+				<div style="margin-top: 6px">总：$${sum}</div>
+			`
+		}
+
+		function handleSubmit3() {
+			// https://www.interactivebrokers.com.hk/cn/pricing/commissions-stocks.php
+			const form = document.getElementById('form3')
+			const formData = new FormData(form);
+			const type = formData.get('type3') || 'buy'
+			const price = Number(formData.get('price3')) || 0
+			const count = Number(formData.get('count3')) || 0
+			const total = price * count
+			const s1 = Math.max(0.35, Math.min(0.0035 * count, total * 0.01))
+			const s2 = (0.000035 + 0.000046) * 0.5 * count // 审计跟踪费
+			const s3 = 0.0002 * count // 清算费用
+			const fixedData = getUSAFixedData(type, price, count)
+			const sum = (s1 + s2 + s3 + fixedData.sum).toFixed(2)
+			document.getElementById('result3').innerHTML = `
+				<div>平台费：$${s1.toFixed(2)}</div>
+				<div>审计费：$${s2.toFixed(2)}</div>
+				<div>清算费：$${s3.toFixed(2)}</div>
 				${fixedData.innerHTML}
 				<div style="margin-top: 6px">总：$${sum}</div>
 			`
