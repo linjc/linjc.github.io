@@ -1,0 +1,8 @@
+1:"$Sreact.fragment"
+2:I[95160,["/_next/static/chunks/a1bf769f0b597515.js"],"default"]
+3:I[72134,["/_next/static/chunks/a1bf769f0b597515.js"],"Image"]
+4:I[86215,["/_next/static/chunks/a1bf769f0b597515.js"],""]
+5:I[91714,["/_next/static/chunks/58d451b533009833.js","/_next/static/chunks/651fc0a51bd36a0f.js"],"OutletBoundary"]
+6:"$Sreact.suspense"
+0:{"buildId":"7Tk_LeFDuV-0x4AvIL66k","rsc":["$","$1","c",{"children":[["$","div",null,{"children":["欢迎来到我的网站","我的名字是张三丰, 我今年200岁",["$","$L2",null,{"lang":"zh"}],["$","$L3",null,{"src":"next.svg","width":100,"height":100,"alt":"测试"}],["$","$L4",null,{"href":"/en","replace":true,"children":"en"}]]}],[["$","script","script-0",{"src":"/_next/static/chunks/a1bf769f0b597515.js","async":true}]],["$","$L5",null,{"children":["$","$6",null,{"name":"Next.MetadataOutlet","children":"$@7"}]}]]}],"loading":null,"isPartial":false}
+7:null
